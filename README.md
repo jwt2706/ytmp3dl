@@ -7,3 +7,5 @@ Download mp3 audio from Youtube using any video's link directly in your terminal
 3. Install libs: `pip install -r requirements.txt`
 4. Run `launch.sh`
 5. Profit
+
+If the shell script dosen't work, you might've forgetten to add it to your path env variable.
