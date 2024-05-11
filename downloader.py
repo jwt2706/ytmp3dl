@@ -1,29 +1,24 @@
 # for documentation, see README
 
 from pytube import YouTube
+from pydub import AudioSegment
 import os
-
-CONVERT = False  # Set to True if you want to convert incoming webm files to mp3
-
-if CONVERT:
-    from pydub import AudioSegment
 
 while True:
     v = input("Video link: ")
     yt = YouTube(v)
-    video = yt.streams.filter(only_audio=True).first()
-    out_file = video.download(output_path=".")
 
-    if CONVERT:
-        base, ext = os.path.splitext(out_file)
-        new_file = base + '.mp3'
-        audio = AudioSegment.from_file(out_file, format="webm")
-        audio.export(new_file, format="mp3")
-        os.remove(out_file)
-    else:
-        base, ext = os.path.splitext(out_file)
-        new_file = base + '.webm'
-        os.rename(out_file, new_file)
+    streams = yt.streams.filter(only_audio=True)
+
+    # select the stream with the highest bitrate
+    selected_stream = sorted(streams, key=lambda stream: int(stream.abr.replace('kbps', '')) if stream.abr else 0, reverse=True)[0]
+    
+    out_file = selected_stream.download(output_path=".")
+    base, ext = os.path.splitext(out_file)
+    new_file = base + '.mp3'
+    audio = AudioSegment.from_file(out_file)
+    audio.export(new_file, format="mp3")
+    os.remove(out_file)
 
     with open("links.txt", "a") as links:
         links.write(v+"\n")
